@@ -28,15 +28,18 @@ You are given three groups of articles: left-leaning, center, and right-leaning.
 
 Your task is to:
 
-1. Identify the main bullet points or key themes that each political bias (left, center, right) focused on.
-2. Compare how the left, center, and right sources reported the same events. Highlight:
+1. make a title summary of what happened from all the articles. make sure to mention almost everything. make sure to include the keyword ${keyword} that the user searched (8-15 words).
+2. Identify the main bullet points or key themes that each political bias (left, center, right) focused on make sure to include the keyword ${keyword}.
+3. Compare how the left, center, and right sources reported the same events. Highlight:
    - Differences in language, tone, or framing
    - What details each side emphasized or omitted
-3. Point out any emotionally charged or biased language used.
-4. Summarize how each side's coverage might influence a reader's perception.
-5. Conclude with an objective summary of the actual facts mentioned across all sources.
+4. Point out any emotionally charged or biased language used.
+5. Summarize how each side's coverage might influence a reader's perception.
+6. Conclude with an objective summary of the actual facts mentioned across all sources.
 
 Output structure:
+Summary Title: []
+
 - 🟦 Left Summary:
   - [bullet points]
 - ⬜ Center Summary:
