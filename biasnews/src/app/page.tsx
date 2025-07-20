@@ -1,21 +1,36 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import BiasSectionSelector from "./components/BiasButtons";
+import SelectableButton from "./components/SelectableButton";
+import AnalysisList from "./components/AnalysisList";
+
+type AnalysisResult = {
+  title: string;
+  summaries: {
+    left: string[];
+    center: string[];
+    right: string[];
+  };
+  differences: string[];
+  biasIndicators: string[];
+};
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const [keyword, setKeyword] = useState<string | null>(null);
-  const [result, setResult] = useState<string>("");
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSection, setSelectedSection] = useState<
+    "left" | "center" | "right" | "differences" | "bias"
+  >("center");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setKeyword(input); // Update keyword
     setLoading(true);
     setError(null);
-    setResult("");
+    setResult(null);
 
     try {
       const response = await fetch("http://localhost:3001/analyze", {
@@ -30,7 +45,8 @@ export default function Home() {
 
       const data = await response.json();
       setResult(data.analysis);
-    } catch (err: any) {
+      console.log(result);
+    } catch (err) {
       console.error(err);
       setError("Something went wrong.");
     } finally {
@@ -38,7 +54,7 @@ export default function Home() {
     }
   };
 
-  const shouldCenter = !loading && !result && !error;
+  const shouldCenter = !result;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -71,15 +87,43 @@ export default function Home() {
             Get Analysis
           </button>
         </form>
+        {error && <p className="text-red-500">{error}</p>}
 
         {/* Result */}
-        <div className="w-full max-w-5xl bg-amber-50 text-black p-5 rounded-xl">
-          {loading && <p>Analyzing news articles...</p>}
-          {error && <p className="text-red-500">{error}</p>}
-          {!loading && !error && result && (
-            <pre className="whitespace-pre-wrap text-sm mt-6">{result}</pre>
-          )}
-        </div>
+        {loading && (
+          <div className="w-full max-w-5xl bg-amber-50 text-black p-5 rounded-xl">
+            <p>Analyzing news articles...</p>
+          </div>
+        )}
+
+        {!loading && result && (
+          <div className="w-full max-w-5xl bg-amber-50 text-black p-5 rounded-xl">
+            <h1 className="text-3xl mb-4 p-2">{result.title}</h1>
+            {/* buttons */}
+            <div className="flex flex-wrap gap-4">
+              <BiasSectionSelector
+                selectedSection={selectedSection}
+                setSelectedSection={setSelectedSection}
+              />
+              <SelectableButton
+                name="Differences"
+                value="differences"
+                selectedSection={selectedSection}
+                setSelectedSection={setSelectedSection}
+                color="yellow-600"
+              />
+
+              <SelectableButton
+                name="Bias"
+                value="bias"
+                selectedSection={selectedSection}
+                setSelectedSection={setSelectedSection}
+                color="purple-700"
+              />
+            </div>
+            <AnalysisList selectedSection={selectedSection} result={result} />
+          </div>
+        )}
       </div>
     </div>
   );

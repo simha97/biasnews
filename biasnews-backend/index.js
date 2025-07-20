@@ -24,37 +24,30 @@ async function analyzeArticles(keyword) {
 const prompt = `
 You are a political news analyst.
 
-You are given three groups of articles: left-leaning, center, and right-leaning. Each group contains news articles about the same topic (e.g., "Ukraine") published recently.
+You are given three groups of articles: left-leaning, center, and right-leaning. Each group contains news articles about the same topic (e.g., "${keyword}") published recently.
 
 Your task is to:
 
-1. make a title summary of what happened from all the articles. make sure to mention almost everything. make sure to include the keyword ${keyword} that the user searched (8-15 words).
-2. Identify the main bullet points or key themes that each political bias (left, center, right) focused on make sure to include the keyword ${keyword}.
-3. Compare how the left, center, and right sources reported the same events. Highlight:
-   - Differences in language, tone, or framing
-   - What details each side emphasized or omitted
-4. Point out any emotionally charged or biased language used.
-5. Summarize how each side's coverage might influence a reader's perception.
-6. Conclude with an objective summary of the actual facts mentioned across all sources.
+1. Create a clear, objective **summary title** (8–15 words) that includes the keyword "${keyword}".
+2. Identify key themes and summary bullet points from each group (left, center, right).
+3. Compare how the left, center, and right sources reported the same events (differences in tone, emphasis, or omissions).
+4. Identify any emotionally charged or biased language used in each side.
+5. Return an object strictly in the following JSON format:
 
-Output structure:
-Summary Title: []
+\`\`\`json
+{
+  "title": "string",
+  "summaries": {
+    "left": ["string", "..."],
+    "center": ["string", "..."],
+    "right": ["string", "..."]
+  },
+  "differences": ["string", "..."],
+  "biasIndicators": ["string", "..."]
+}
+\`\`\`
 
-- 🟦 Left Summary:
-  - [bullet points]
-- ⬜ Center Summary:
-  - [bullet points]
-- 🟥 Right Summary:
-  - [bullet points]
-
-🧩 Differences & Framing:
-- [compare tone, emphasis, omissions]
-
-🎯 Bias Indicators:
-- [quotes or examples of biased language or emotional framing]
-
-📰 Objective Cross-Source Summary:
-- [factual summary across all sources without bias]
+DO NOT explain or add any commentary. DO NOT wrap the object with markdown (\`\`\`json). JUST return valid raw JSON.
 
 Here are the articles:
 
@@ -69,7 +62,19 @@ ${formatArticlesText("RIGHT", grouped.right)}
     messages: [{ role: "user", content: prompt }],
   });
 
-  return response.choices[0].message.content;
+const data = response.choices[0].message.content;
+
+let analysis;
+  try {
+
+    analysis = JSON.parse(data);
+    console.log(analysis)
+} catch (err) {
+  console.error("Failed to parse analysis:", err);
+  throw new Error("Could not parse OpenAI response into JSON.");
+}
+
+  return analysis;
 }
 
 module.exports = { analyzeArticles };
